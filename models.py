@@ -69,9 +69,40 @@ class Game(ndb.Model):
             form.guessed_word = self.get_guessed_word(word)
         return form
 
+
     def to_score_form(self):
         return ScoreForm(user_name=self.user.get().name, won=self.won,
                             date=str(self.date), score=self.score)
+
+
+    def to_history_form(self):
+        """Returns a GameHistoryForm representation of the Game"""
+        form = GameHistoryForm()
+        form.urlsafe_key = self.key.urlsafe()
+        form.user_name = self.user.get().name
+        form.attempts_remaining = self.get_attempts_remaining()
+        form.game_over = self.game_over
+        form.attempted_letters = self.attempted_letters
+        form.date = str(self.date)
+        form.score = self.score
+        form.won = self.won
+        word = self.word.get()
+        form.clue = word.clue
+
+        if self.game_over:
+            # allow user to see the word
+            form.guessed_word = word.name
+            form.message = "Game Over."
+            if self.won:
+                form.message += " You Won! You scored {0}.".format(self.score)
+            else:
+                form.message += " You Lost!"
+        else:
+            form.guessed_word = self.get_guessed_word(word)
+            form.message = "Game is unfinished."
+
+        form.moves = json.dumps([{'guess': c, 'result': c in word.name} for c in self.attempted_letters])
+        return form
 
 
     def get_guessed_word(self, word=None):
@@ -110,20 +141,8 @@ class Game(ndb.Model):
         return "_" not in self.get_guessed_word()
 
 
-class Score(ndb.Model):
-    """Score object"""
-    user = ndb.KeyProperty(required=True, kind='User')
-    date = ndb.DateProperty(required=True)
-    won = ndb.BooleanProperty(required=True)
-    score = ndb.IntegerProperty(required=True)
-
-    def to_form(self):
-        return ScoreForm(user_name=self.user.get().name, won=self.won,
-                         date=str(self.date), score=self.score)
-
-
 class Word(ndb.Model):
-    """Word bank"""
+    """Word bank model"""
     name = ndb.StringProperty(required=True)
     clue =ndb.StringProperty(required=True)
 
@@ -159,6 +178,22 @@ class GameForm(messages.Message):
     date = messages.StringField(9, required=True)
     won = messages.BooleanField(10, required=True)
     score = messages.IntegerField(11, required=True)
+
+
+class GameHistoryForm(messages.Message):
+    """GameHistoryForm for outbound game state information"""
+    urlsafe_key = messages.StringField(1, required=True)
+    attempts_remaining = messages.IntegerField(2, required=True)
+    game_over = messages.BooleanField(3, required=True)
+    message = messages.StringField(4, required=True)
+    user_name = messages.StringField(5, required=True)
+    guessed_word = messages.StringField(6, required=True)
+    attempted_letters = messages.StringField(7, required=True)
+    clue = messages.StringField(8, required=True)
+    date = messages.StringField(9, required=True)
+    won = messages.BooleanField(10, required=True)
+    score = messages.IntegerField(11, required=True)
+    moves = messages.StringField(12, required=True)
 
 
 class GameForms(messages.Message):

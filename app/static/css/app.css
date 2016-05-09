@@ -13,6 +13,9 @@ th {
 td {
     padding-right:10px;
 }
+.center {
+    margin: 0px auto;
+}
 .playContainer {
     text-align: center;
 }

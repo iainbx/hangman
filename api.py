@@ -12,7 +12,7 @@ from google.appengine.api import taskqueue
 
 from models import User, Game, Word
 from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
-    ScoreForms, GameForms, RankForms
+    ScoreForms, GameForms, RankForms, GameHistoryForm
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -188,6 +188,21 @@ class HangmanApi(remote.Service):
         return GameForms(items=[game.to_form() for game in games])
 
 
+    @endpoints.method(request_message=USER_REQUEST,
+                      response_message=GameForms,
+                      path='games/completed/user/{user_name}',
+                      name='get_user_games_completed',
+                      http_method='GET')
+    def get_user_games_completed(self, request):
+        """Returns all of an individual User's completed games."""
+        user = User.query(User.name == request.user_name).get()
+        if not user:
+            raise endpoints.NotFoundException(
+                    'A User with that name does not exist!')
+        games = Game.query(Game.user == user.key, Game.game_over == True)
+        return GameForms(items=[game.to_form() for game in games])
+
+
     @endpoints.method(response_message=RankForms,
                       path='games/user/rankings',
                       name='get_user_rankings',
@@ -196,6 +211,20 @@ class HangmanApi(remote.Service):
         """Returns all user rankings."""
         users = User.query().order(-User.total_score, User.total_played)
         return RankForms(items=[user.to_rank_form() for user in users])
+
+
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=GameHistoryForm,
+                      path='game/history/{urlsafe_game_key}',
+                      name='get_game_history',
+                      http_method='GET')
+    def get_game_history(self, request):
+        """Returns the history of the specified game."""
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if game:
+            return game.to_history_form()
+        else:
+            raise endpoints.NotFoundException('Game not found!')
 
 
 api = endpoints.api_server([HangmanApi])

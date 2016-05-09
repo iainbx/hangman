@@ -12,3 +12,17 @@
         <td><a ng-click="play(game.urlsafe_key)">Play</a></td>
     </tr>
 </table>
+<h2>My Completed Games</h2>
+<table>
+    <tr>
+        <th>Word</th>
+        <th>Score</th>
+        <th>Date</th>
+    </tr>
+    <tr ng-repeat="game_completed in games_completed">
+        <td>{{game_completed.guessed_word}}</td>
+        <td>{{game_completed.score}}</td>
+        <td>{{game_completed.date}}</td>
+        <td><a ng-click="show_history(game_completed.urlsafe_key)">Show History</a></td>
+    </tr>
+</table>

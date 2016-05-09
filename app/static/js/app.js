@@ -9,6 +9,10 @@ hangmanApp.config(['$routeProvider',
                 templateUrl: '/partials/play_game.html',
                 controller: 'GameController'
             }).
+            when('/game/history/:websafeGameKey', {
+                templateUrl: '/partials/game_history.html',
+                controller: 'GameHistoryController'
+            }).
             when('/highscores', {
                 templateUrl: '/partials/high_scores.html',
                 controller: 'HighScoresController'
@@ -88,9 +92,22 @@ hangmanApp.controller('UserGamesController', function ($scope, $location, User) 
             $scope.$apply();
         }
     });
-    
+ 
+    gapi.client.hangman.get_user_games_completed({
+            'user_name': User.name
+        }).execute(function (resp) {
+        if (!resp.code) {
+            $scope.games_completed = resp.items;
+            $scope.$apply();
+        }
+    });
+   
     $scope.play = function(urlsafe_key) {
         $location.path("/game/" + urlsafe_key);
+    };
+    
+    $scope.show_history = function(urlsafe_key) {
+        $location.path("/game/history/" + urlsafe_key);
     };
 });
 
@@ -178,6 +195,25 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
     };
 
 });
+
+// Game history controller
+hangmanApp.controller('GameHistoryController', function ($scope, $routeParams) {
+    canvas.init();
+    
+    // get game data
+    gapi.client.hangman.get_game_history({
+        'urlsafe_game_key': $routeParams.websafeGameKey
+    }).execute(function (resp) {
+        if (!resp.code) {
+            $scope.game = resp;
+            $scope.game.moves = $.parseJSON($scope.game.moves);
+            $scope.$apply();
+            canvas.draw($scope.game.attempts_remaining);
+            buttons($scope.game.attempted_letters);
+        }
+    });
+});
+
 
 function buttons(attempted_letters) {
     var buttons = document.querySelectorAll("ul#alphabet li");
