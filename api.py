@@ -12,7 +12,7 @@ from google.appengine.api import taskqueue
 
 from models import User, Game, Word
 from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
-    ScoreForms, GameForms
+    ScoreForms, GameForms, RankForms
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -123,6 +123,11 @@ class HangmanApi(remote.Service):
            
         if game.is_won():
             game.end_game(True)
+            # update user totals for ranking
+            user = game.user.get()
+            user.total_played += 1
+            user.total_score += game.score
+            user.put()
             return game.to_form('You won! You scored {0}.'.format(game.score))
         
         if request.guess in game.word.get().name:
@@ -182,41 +187,15 @@ class HangmanApi(remote.Service):
         games = Game.query(Game.user == user.key, Game.game_over == False)
         return GameForms(items=[game.to_form() for game in games])
 
-    @endpoints.method(request_message=USER_REQUEST,
-                      response_message=ScoreForms,
-                      path='scores/user/{user_name}',
-                      name='get_user_scores',
+
+    @endpoints.method(response_message=RankForms,
+                      path='games/user/rankings',
+                      name='get_user_rankings',
                       http_method='GET')
-    def get_user_scores(self, request):
-        """Returns all of an individual User's scores"""
-        user = User.query(User.name == request.user_name).get()
-        if not user:
-            raise endpoints.NotFoundException(
-                    'A User with that name does not exist!')
-        scores = Score.query(Score.user == user.key)
-        return ScoreForms(items=[score.to_form() for score in scores])
-
-
-    @endpoints.method(response_message=StringMessage,
-                      path='games/average_attempts',
-                      name='get_average_attempts_remaining',
-                      http_method='GET')
-    def get_average_attempts(self, request):
-        """Get the cached average moves remaining"""
-        return StringMessage(message=memcache.get(MEMCACHE_MOVES_REMAINING) or '')
-
-
-    @staticmethod
-    def _cache_average_attempts():
-        """Populates memcache with the average moves remaining of Games"""
-        games = Game.query(Game.game_over == False).fetch()
-        if games:
-            count = len(games)
-            total_attempts_remaining = sum([game.attempts_remaining
-                                        for game in games])
-            average = float(total_attempts_remaining)/count
-            memcache.set(MEMCACHE_MOVES_REMAINING,
-                         'The average moves remaining is {:.2f}'.format(average))
+    def get_user_rankings(self, request):
+        """Returns all user rankings."""
+        users = User.query().order(-User.total_score, User.total_played)
+        return RankForms(items=[user.to_rank_form() for user in users])
 
 
 api = endpoints.api_server([HangmanApi])

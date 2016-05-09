@@ -20,7 +20,7 @@ td {
     background-color: #725E26;
     border-color: #725E26;
 }
-.navbar-inverse .navbar-nav>li>a {
+.navbar-inverse .navbar-nav>li>a, a:hover {
     cursor:pointer;
 }
  .navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {

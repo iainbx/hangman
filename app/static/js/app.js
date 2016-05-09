@@ -13,6 +13,10 @@ hangmanApp.config(['$routeProvider',
                 templateUrl: '/partials/high_scores.html',
                 controller: 'HighScoresController'
             }).
+            when('/rankings', {
+                templateUrl: '/partials/rankings.html',
+                controller: 'RankingsController'
+            }).
             when('/mygames', {
                 templateUrl: '/partials/user_games.html',
                 controller: 'UserGamesController'
@@ -45,11 +49,25 @@ hangmanApp.controller('NavController', function ($scope, $location, User) {
         $location.path("/highscores");
     };
     
+    $scope.show_rankings = function() {
+        $location.path("/rankings");
+    };
+    
     $scope.show_user_games = function() {
         $location.path("/mygames");
     };
 });
     
+// Rankings controller
+hangmanApp.controller('RankingsController', function ($scope, $location, User) {
+    gapi.client.hangman.get_user_rankings().execute(function (resp) {
+        if (!resp.code) {
+            $scope.rankings = resp.items;
+            $scope.$apply();
+        }
+    });
+});
+
 // High Scores controller
 hangmanApp.controller('HighScoresController', function ($scope, $location, User) {
     gapi.client.hangman.get_high_scores().execute(function (resp) {
@@ -70,6 +88,10 @@ hangmanApp.controller('UserGamesController', function ($scope, $location, User) 
             $scope.$apply();
         }
     });
+    
+    $scope.play = function(urlsafe_key) {
+        $location.path("/game/" + urlsafe_key);
+    };
 });
 
 // new game controller

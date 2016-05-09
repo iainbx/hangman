@@ -41,6 +41,7 @@
                 <ul class="nav navbar-nav">
                     <li ng-class="{ active: isActive('/')}"><a href="/">New Game</a></li>
                     <li ng-class="{ active: isActive('/highscores')}"><a ng-click="show_high_scores()" >High Scores</a></li>
+                    <li ng-class="{ active: isActive('/rankings')}"><a ng-click="show_rankings()">Rankings</a></li>
                     <li ng-class="{ active: isActive('/mygames')}"><a ng-click="show_user_games()" ng-show="user_name != ''">My Games</a></li>
                 </ul>
             </div>

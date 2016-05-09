@@ -1,0 +1,13 @@
+<h2>Rankings</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Total Score</th>
+        <th>Total Played</th>
+    </tr>
+    <tr ng-repeat="ranking in rankings">
+        <td>{{ranking.user_name}}</td>
+        <td>{{ranking.total_score}}</td>
+        <td>{{ranking.total_played}}</td>
+    </tr>
+</table>

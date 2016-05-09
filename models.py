@@ -14,6 +14,13 @@ class User(ndb.Model):
     """User model"""
     name = ndb.StringProperty(required=True)
     email =ndb.StringProperty()
+    total_score = ndb.IntegerProperty(default=0)
+    total_played = ndb.IntegerProperty(default=0)
+
+
+    def to_rank_form(self):
+        return RankForm(user_name=self.name, total_score=self.total_score,
+                         total_played=self.total_played)
 
 
 class Game(ndb.Model):
@@ -26,6 +33,7 @@ class Game(ndb.Model):
     date = ndb.DateProperty(required=True)
     won = ndb.BooleanProperty(required=True, default=False)
     score = ndb.IntegerProperty(default=0)
+
 
     @classmethod
     def new_game(cls, user, word, attempts):
@@ -181,6 +189,18 @@ class ScoreForm(messages.Message):
 class ScoreForms(messages.Message):
     """Return multiple ScoreForms"""
     items = messages.MessageField(ScoreForm, 1, repeated=True)
+
+
+class RankForm(messages.Message):
+    """RankForm for outbound Rank information"""
+    user_name = messages.StringField(1, required=True)
+    total_score = messages.IntegerField(2, required=True)
+    total_played = messages.IntegerField(3, required=True)
+
+
+class RankForms(messages.Message):
+    """Return multiple RankForms"""
+    items = messages.MessageField(RankForm, 1, repeated=True)
 
 
 class StringMessage(messages.Message):
