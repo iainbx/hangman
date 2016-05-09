@@ -1,0 +1,13 @@
+<h2>Top Ten Scores</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Score</th>
+        <th>Date</th>
+    </tr>
+    <tr ng-repeat="score in scores">
+        <td>{{score.user_name}}</td>
+        <td>{{score.score}}</td>
+        <td>{{score.date}}</td>
+    </tr>
+</table>

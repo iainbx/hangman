@@ -1,0 +1,13 @@
+<h2>My Active Games</h2>
+<table>
+    <tr>
+        <th>Guessed</th>
+        <th>Attempts Remaining</th>
+        <th>Date</th>
+    </tr>
+    <tr ng-repeat="game in games">
+        <td>{{game.guessed_word}}</td>
+        <td>{{game.attempts_remaining}}</td>
+        <td>{{game.date}}</td>
+    </tr>
+</table>

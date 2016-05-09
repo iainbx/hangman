@@ -1,0 +1,2 @@
+initially create user and play game endpoints.
+combined into 1 - play game - faster, had problems chaining js calls to app engine - consistency

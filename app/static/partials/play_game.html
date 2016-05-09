@@ -1,0 +1,40 @@
+  <div class="playContainer">  
+    <canvas id="canvas">This Browser does NOT support HTML5 Canvas tag</canvas>
+    <p>{{game.clue}}</p>
+    <p id="guessed">{{game.guessed_word}}</p>
+    <div id="buttons">
+        <ul id="alphabet">
+            <li id="letter" ng-click="make_move($event)">a</li>
+            <li id="letter" ng-click="make_move($event)">b</li>
+            <li id="letter" ng-click="make_move($event)">c</li>
+            <li id="letter" ng-click="make_move($event)">d</li>
+            <li id="letter" ng-click="make_move($event)">e</li>
+            <li id="letter" ng-click="make_move($event)">f</li>
+            <li id="letter" ng-click="make_move($event)">g</li>
+            <li id="letter" ng-click="make_move($event)">h</li>
+            <li id="letter" ng-click="make_move($event)">i</li>
+            <li id="letter" ng-click="make_move($event)">j</li>
+            <li id="letter" ng-click="make_move($event)">k</li>
+            <li id="letter" ng-click="make_move($event)">l</li>
+            <li id="letter" ng-click="make_move($event)">m</li>
+            <li id="letter" ng-click="make_move($event)">n</li>
+            <li id="letter" ng-click="make_move($event)">o</li>
+            <li id="letter" ng-click="make_move($event)">p</li>
+            <li id="letter" ng-click="make_move($event)">q</li>
+            <li id="letter" ng-click="make_move($event)">r</li>
+            <li id="letter" ng-click="make_move($event)">s</li>
+            <li id="letter" ng-click="make_move($event)">t</li>
+            <li id="letter" ng-click="make_move($event)">u</li>
+            <li id="letter" ng-click="make_move($event)">v</li>
+            <li id="letter" ng-click="make_move($event)">w</li>
+            <li id="letter" ng-click="make_move($event)">x</li>
+            <li id="letter" ng-click="make_move($event)">y</li>
+            <li id="letter" ng-click="make_move($event)">z</li>
+        </ul>
+    </div>
+    <p id="message">{{game.message}}</p>
+    <div>
+        <button ng-click="cancel_game()" ng-show="!game.game_over" class="btn-lg">Cancel</button>
+        <button ng-click="play_again(game.user_name)" ng-show="game.game_over" class="btn-lg">Play again</button>
+    </div>
+</div>

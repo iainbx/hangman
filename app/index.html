@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hangman</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        function init() {
+                var callback = function() {
+                    gapi.client.setApiKey('AIzaSyAbdYbE8cxWqRa9Yce2N71CMQhVCUyFD3E');
+                    angular.bootstrap(document, ['hangmanApp']);
+                }
+                gapi.client.load('hangman', 'v1', callback, '//' + window.location.host + '/_ah/api');
+            }
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=init"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavController">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+                    aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Hangman</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{ active: isActive('/')}"><a href="/">New Game</a></li>
+                    <li ng-class="{ active: isActive('/highscores')}"><a ng-click="show_high_scores()" >High Scores</a></li>
+                    <li ng-class="{ active: isActive('/mygames')}"><a ng-click="show_user_games()" ng-show="user_name != ''">My Games</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div ng-view></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</body>
+
+</html>
