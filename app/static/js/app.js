@@ -239,7 +239,6 @@ var canvas = (function() {
     var drawFloor = function() {
         drawLine(0, 150, 150, 150);
     }
-
     function drawSupport1() {
         drawLine(10, 0, 10, 600);
     }

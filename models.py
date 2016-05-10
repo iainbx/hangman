@@ -44,7 +44,9 @@ class Game(ndb.Model):
                     attempts_allowed=attempts,
                     attempted_letters = "",
                     game_over=False,
-                    date=date.today())
+                    date=date.today(),
+                    won=False,
+                    score=0)
         game.put()
         return game
 

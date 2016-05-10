@@ -1,2 +1,4 @@
 initially create user and play game endpoints.
-combined into 1 - play game - faster, had problems chaining js calls to app engine - consistency
+combined into 1 - play game - faster, had problems chaining js calls to app engine 
+- eventually consistent
+removed score model, needed score to be associated with game 1 to 1 so added to game.

@@ -32,6 +32,7 @@ HIGH_SCORES_REQUEST = endpoints.ResourceContainer(number_of_results=messages.Int
 class HangmanApi(remote.Service):
     """Game API"""
     
+
     def __init__(self):
         key = Word.query().get(keys_only=True)
         if key is None:
@@ -39,22 +40,6 @@ class HangmanApi(remote.Service):
             Word.import_words()
 
     
-    @endpoints.method(request_message=USER_REQUEST,
-                      response_message=StringMessage,
-                      path='user',
-                      name='create_user',
-                      http_method='POST')
-    def create_user(self, request):
-        """Create a User. Requires a unique username"""
-        if User.query(User.name == request.user_name).get():
-            raise endpoints.ConflictException(
-                    'A User with that name already exists!')
-        user = User(name=request.user_name, email=request.email)
-        user.put()
-        return StringMessage(message='User {} created!'.format(
-                request.user_name))
-
-
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
                       path='game',
