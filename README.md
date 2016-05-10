@@ -5,7 +5,7 @@ and an AngularJS application for the frontend.
 
 ##Prerequisites
 The endpoints are written in Python 2.7 and require the 
-[App Engine SDK for Python][https://developers.google.com/appengine/downloads] 
+[App Engine SDK for Python](https://developers.google.com/appengine/downloads) 
 to be installed in order to run locally or to deploy to the Google cloud.
 
 
@@ -31,8 +31,8 @@ git clone https://github.com/iainbx/hangman.git
 1.  Update the value of `application` in `app.yaml` to an app ID that you have registered
  in the Google App Engine admin console and would like to use to host your instance of this sample.
 1.  Run the app with the devserver using dev_appserver.py DIR.
-1.  Browse to the home page of the web site (by default [localhost:8080/][http://localhost:8080/]) and play the game.
-1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer][http://localhost:8080/_ah/api/explorer].
+1.  Browse to the home page of the web site (by default [localhost:8080/](http://localhost:8080/)) and play the game.
+1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
 
 
 ##Endpoints
