@@ -20,14 +20,14 @@
 <table>
     <tr>
         <th>Level</th>
-        <th>Guessed Word</th>
         <th>Guess</th>
+        <th>Guessed Word</th>
         <th>Correct?</th>
     </tr>
     <tr ng-repeat="move in game.moves">
         <td>{{move.level}}</td>
-        <td>{{move.guessed_word}}</td>
         <td>{{move.guess}}</td>
+        <td>{{move.guessed_word}}</td>
         <td>{{move.result}}</td>
     </tr>
 </table>
