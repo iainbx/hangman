@@ -1,4 +1,4 @@
-"""Class definitions for the Datastore entities used by the Hangman API.""""
+"""Class definitions for the Datastore entities used by the Hangman API."""
 
 import random
 from datetime import date
