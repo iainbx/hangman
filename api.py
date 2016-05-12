@@ -45,6 +45,10 @@ class HangmanApi(remote.Service):
         """ Creates new game.
             Creates a new user, if it doesnt already exist.
         """
+        if request.attempts < 1:
+            raise endpoints.BadRequestException('Attempts must be grater '
+                                                'than 0!')
+                                                
         user = User.query(User.name == request.user_name).get()
         if not user:
             # create new user
@@ -84,11 +88,15 @@ class HangmanApi(remote.Service):
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
-                      path='game/make_move/{urlsafe_game_key}',
+                      path='game/{urlsafe_game_key}',
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
         """Makes a move in a game. Returns the game state."""
+        if len(request.guess) != 1:
+            raise endpoints.BadRequestException('Guess 1 letter '
+                                                'at a time!')
+                                                
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
