@@ -1,48 +1,27 @@
-  <h2>Game History</h2>
-  <div class="playContainer">  
-    <canvas id="canvas">This Browser does NOT support HTML5 Canvas tag</canvas>
-    <p>{{game.clue}}</p>
-    <p id="guessed">{{game.guessed_word}}</p>
-    <div id="buttons">
-        <ul id="alphabet">
-            <li id="letter">a</li>
-            <li id="letter">b</li>
-            <li id="letter">c</li>
-            <li id="letter">d</li>
-            <li id="letter">e</li>
-            <li id="letter">f</li>
-            <li id="letter">g</li>
-            <li id="letter">h</li>
-            <li id="letter">i</li>
-            <li id="letter">j</li>
-            <li id="letter">k</li>
-            <li id="letter">l</li>
-            <li id="letter">m</li>
-            <li id="letter">n</li>
-            <li id="letter">o</li>
-            <li id="letter">p</li>
-            <li id="letter">q</li>
-            <li id="letter">r</li>
-            <li id="letter">s</li>
-            <li id="letter">t</li>
-            <li id="letter">u</li>
-            <li id="letter">v</li>
-            <li id="letter">w</li>
-            <li id="letter">x</li>
-            <li id="letter">y</li>
-            <li id="letter">z</li>
-        </ul>
-    </div>
-    <p id="message">{{game.message}}</p>
-    <h2>Your Moves</h2>
-    <table class="center">
-        <tr>
-            <th>Guess</th>
-            <th>Correct?</th>
-        </tr>
-        <tr ng-repeat="move in game.moves">
-            <td>{{move.guess}}</td>
-            <td>{{move.result}}</td>
-        </tr>
-    </table>
-</div>
+<h2>Game History</h2>
+<div>
+    <label>User</label>
+    {{game.user_name}}
+<div>
+<div>
+    <label>Date</label>
+    {{game.date}}
+<div>
+<div>
+    <label>Score</label>
+    {{game.score}}
+<div>
+<table>
+    <tr>
+        <th>Level</th>
+        <th>Guessed Word</th>
+        <th>Guess</th>
+        <th>Correct?</th>
+    </tr>
+    <tr ng-repeat="move in game.moves">
+        <td>{{move.level}}</td>
+        <td>{{move.guessed_word}}</td>
+        <td>{{move.guess}}</td>
+        <td>{{move.result}}</td>
+    </tr>
+</table>

@@ -157,7 +157,7 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
         var el = $event.currentTarget;
         var guess = (el.innerHTML);
         el.setAttribute("class", "active");
-        el.onclick = null;
+        //el.onclick = null;
         gapi.client.hangman.make_move({
             'urlsafe_game_key': $scope.game_key,
             'guess': guess
@@ -166,6 +166,21 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
                 $scope.game = resp;
                 $scope.$apply();
                 canvas.draw($scope.game.attempts_remaining);
+            }
+        });
+    };
+    
+    // next level
+    $scope.next_level = function($event) {
+        gapi.client.hangman.next_level({
+            'urlsafe_game_key': $scope.game_key
+        }).execute(function (resp) {
+            if (!resp.code) {
+                $scope.game = resp;
+                $scope.$apply();
+                canvas.init();
+                canvas.draw($scope.game.attempts_remaining);
+                buttons($scope.game.attempted_letters);
             }
         });
     };
@@ -198,7 +213,6 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
 
 // Game history controller
 hangmanApp.controller('GameHistoryController', function ($scope, $routeParams) {
-    canvas.init();
     
     // get game data
     gapi.client.hangman.get_game_history({
@@ -208,8 +222,6 @@ hangmanApp.controller('GameHistoryController', function ($scope, $routeParams) {
             $scope.game = resp;
             $scope.game.moves = $.parseJSON($scope.game.moves);
             $scope.$apply();
-            canvas.draw($scope.game.attempts_remaining);
-            buttons($scope.game.attempted_letters);
         }
     });
 });
@@ -220,7 +232,10 @@ function buttons(attempted_letters) {
     for (var i = 0; i < buttons.length; i++) {
         if (attempted_letters.indexOf(buttons[i].innerHTML) >= 0) {
             buttons[i].setAttribute("class", "active");
-            buttons[i].onclick = null;
+            //buttons[i].onclick = null;
+        }
+        else {
+            buttons[i].setAttribute("class", "");
         }
     }
 }

@@ -35,6 +35,7 @@
     <p id="message">{{game.message}}</p>
     <div>
         <button ng-click="cancel_game()" ng-show="!game.game_over" class="btn-lg">Cancel</button>
-        <button ng-click="play_again(game.user_name)" ng-show="game.game_over" class="btn-lg">Play again</button>
+        <button ng-click="play_again(game.user_name)" ng-show="game.game_over" class="btn-lg">Play Again</button>
+        <button ng-click="next_level()" ng-show="game.level_complete && !game.game_over" class="btn-lg">Next Word</button>
     </div>
 </div>

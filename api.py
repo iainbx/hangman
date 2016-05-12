@@ -16,9 +16,7 @@ from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
-GET_GAME_REQUEST = endpoints.ResourceContainer(
-        urlsafe_game_key=messages.StringField(1),)
-CANCEL_GAME_REQUEST = endpoints.ResourceContainer(
+GAME_REQUEST = endpoints.ResourceContainer(
         urlsafe_game_key=messages.StringField(1),)
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
@@ -30,10 +28,11 @@ HIGH_SCORES_REQUEST = endpoints.ResourceContainer(number_of_results=messages.Int
 
 @endpoints.api(name='hangman', version='v1')
 class HangmanApi(remote.Service):
-    """Game API"""
+    """API for a hangman game."""
     
 
     def __init__(self):
+        # initialize word bank
         key = Word.query().get(keys_only=True)
         if key is None:
             # import word bank from file
@@ -46,31 +45,26 @@ class HangmanApi(remote.Service):
                       name='new_game',
                       http_method='POST')
     def new_game(self, request):
-        """ Creates new game
-            Creates new user, if it doesnt already exist
+        """ Creates new game.
+            Creates new user, if it doesnt already exist.
         """
-        word_key = Word.get_random_word()
         user = User.query(User.name == request.user_name).get()
         if not user:
             # create new user
-            user = User(name=request.user_name, email=request.email)
+            user = User(name=request.user_name,
+                        email=request.email,
+                        total_score=0,
+                        total_played=0)
             user_key = user.put()
         else:
             user_key = user.key
-            # try to get a word that has not been played by the user,
-            # if there are any unplayed words left
-            user_games = Game.query(Game.user == user.key).fetch()
-            word_count = Word.query().count()
-            if len(user_games) < word_count:
-                while word_key in [user_game.word for user_game in user_games]:
-                    word_key = Word.get_random_word()
 
-        game = Game.new_game(user_key, word_key, request.attempts)
+        game = Game.new_game(user_key, request.attempts)
 
         return game.to_form('Make your move, {0}!'.format(user.name))
 
 
-    @endpoints.method(request_message=GET_GAME_REQUEST,
+    @endpoints.method(request_message=GAME_REQUEST,
                       response_message=GameForm,
                       path='game/{urlsafe_game_key}',
                       name='get_game',
@@ -80,13 +74,13 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
             if game.game_over:
-                msg = "Game Over."
-                if game.won:
-                    msg += " You Won! You scored {0}.".format(game.score)
-                else:
-                    msg += " You Lost!"
+                msg = "You scored {0}.".format(game.score)
             else:
-                msg = "Make your move, {0}!".format(game.user.get().name) 
+                level = game.current_level.get()
+                if level.complete:
+                    msg = "Level complete."
+                else:
+                    msg = "Make your move, {0}!".format(game.user.get().name) 
 
             return game.to_form(msg)
         else:
@@ -104,32 +98,41 @@ class HangmanApi(remote.Service):
         if game.game_over:
             return game.to_form('Game already over!')
             
-        game.attempted_letters = game.attempted_letters + request.guess
-           
-        if game.is_won():
-            game.end_game(True)
-            # update user totals for ranking
-            user = game.user.get()
-            user.total_played += 1
-            user.total_score += game.score
-            user.put()
-            return game.to_form('You won! You scored {0}.'.format(game.score))
+        game.update_game(request.guess)
         
-        if request.guess in game.word.get().name:
+        if game.game_over:
+            return game.to_form('Game Over! You scored {0}.'.format(game.score))
+            
+        level = game.current_level.get()
+        if level.complete:
+             return game.to_form('Level complete.')
+       
+        if request.guess in level.word.get().name:
             msg = "You chose well!"
         else:
             msg = "You chose poorly!"
 
-        attempts_remaining = game.get_attempts_remaining()
-        if attempts_remaining < 1:
-            game.end_game(False)
-            return game.to_form(msg + ' You lost!')
-        else:
-            game.put()
-            return game.to_form(msg)
-            
+        return game.to_form(msg)
+           
 
-    @endpoints.method(request_message=CANCEL_GAME_REQUEST,
+    @endpoints.method(request_message=GAME_REQUEST,
+                      response_message=GameForm,
+                      path='game/next_level/{urlsafe_game_key}',
+                      name='next_level',
+                      http_method='PUT')
+    def next_level(self, request):
+        """Gets the next word in a game. Returns the game state."""
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if game.game_over:
+            return game.to_form('Game already over!')
+        
+        # create a new level with a new word    
+        game.new_level()
+        
+        return game.to_form('Make your move, {0}!'.format(game.user.get().name))
+           
+
+    @endpoints.method(request_message=GAME_REQUEST,
                         response_message=StringMessage,
                         path='game/cancel/{urlsafe_game_key}',
                         name='cancel_game',
@@ -151,7 +154,6 @@ class HangmanApi(remote.Service):
     def get_high_scores(self, request):
         """ Returns top scores.
             If number_of_reults parameter is omitted, will return top 10."""
-        logging.info(request.number_of_results)
         result_count = 10
         if request.number_of_results is not None:
             result_count = request.number_of_results
@@ -194,11 +196,11 @@ class HangmanApi(remote.Service):
                       http_method='GET')
     def get_user_rankings(self, request):
         """Returns all user rankings."""
-        users = User.query().order(-User.total_score, User.total_played)
+        users = User.query().order(-User.average_score)
         return RankForms(items=[user.to_rank_form() for user in users])
 
 
-    @endpoints.method(request_message=GET_GAME_REQUEST,
+    @endpoints.method(request_message=GAME_REQUEST,
                       response_message=GameHistoryForm,
                       path='game/history/{urlsafe_game_key}',
                       name='get_game_history',

@@ -4,10 +4,12 @@
         <th>Name</th>
         <th>Total Score</th>
         <th>Total Played</th>
+        <th>Average Score</th>
     </tr>
     <tr ng-repeat="ranking in rankings">
         <td>{{ranking.user_name}}</td>
         <td>{{ranking.total_score}}</td>
         <td>{{ranking.total_played}}</td>
+        <td>{{ranking.average_score}}</td>
     </tr>
 </table>
