@@ -1,4 +1,35 @@
-initially create user and play game endpoints.
-combined into 1 - play game - faster, had problems chaining js calls to app engine 
-- eventually consistent
-removed score model, needed score to be associated with game 1 to 1 so added to game.
+The hangman game uses four entity kinds for storing data, User, Game, Level, and Word. 
+A user can have multiple games, so a User entity is a parent of a Game entity.
+A game can have multiple levels, so a Game entity is a parent of a Level entity.
+A level has a single word to be guessed by the user, so a Level entity is also a 
+child of a Word entity. The Word entity kind is really a static pool of available 
+words for use in any game. 
+I did initially have a Score model for storing game scores, but since I wanted game
+scores to be assocated with the game, I just stored the score in the Game entity.
+I also stored a user's lifetime score and average score in the User entity.
+
+Game flow
+new game for user
+create game, create user if necessary, create 1st level with word to guess from word list
+return game state
+user repeatedly guesses a letter in the word calling make_move() until max failed attempts
+or word guessed
+if word is quessed, game score is updated and user can call next_level()
+ to get a new level with a new word
+ if the word is not quessed in max attempts - game over
+
+I thought it would be a good idea to develop a minimal front end for the API for testing
+purposes, and because I was really interested in seeing the API working with a Javascript app.
+I thought it would be fun, and quite trivial. It was fun, but not trivial. I spent
+as much time on the front end as on the API itself. It didn't help that I chose
+AngularJS for the front end. I had no experience with AngularJS, but it looked like
+a good fit, and would be trivial to learn. It wasn't.
+
+Still creating a front end did help with testing. It immediately highlighted that 
+although my API worked in the API Explorer, it did not work in real world use.
+I had an endpoint to create a new user and another endpoint to start a new game for 
+the user. When I called the new game endpoint after calling the create user endpoint,
+the freshly created user could not be found. I think that I stumbled on what Google calls
+eventual consistency, and the problem can be solved with an ancestor query. However,
+it seemed better for my front end if I could create a user if needed and start a game
+in a single call. So thats what I ended up doing.

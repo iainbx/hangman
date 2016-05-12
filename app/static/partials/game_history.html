@@ -1,16 +1,22 @@
 <h2>Game History</h2>
-<div>
-    <label>User</label>
-    {{game.user_name}}
-<div>
-<div>
-    <label>Date</label>
-    {{game.date}}
-<div>
-<div>
-    <label>Score</label>
-    {{game.score}}
-<div>
+<div class="row">
+    <label class="col-sm-2">User</label>
+    <div class="col-sm-6">
+        {{game.user_name}}
+    </div>
+</div>
+<div class="row">
+    <label class="col-sm-2">Date</label>
+    <div class="col-sm-6">
+        {{game.date}}
+    </div>
+</div>
+<div class="row">
+    <label class="col-sm-2">Score</label>
+    <div class="col-sm-6">
+        {{game.score}}
+    </div>
+</div>
 <table>
     <tr>
         <th>Level</th>

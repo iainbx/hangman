@@ -12,8 +12,8 @@ from models import User, Game
 
 class SendReminderEmail(webapp2.RequestHandler):
     def get(self):
-        """Send a reminder email to each User with an email and unfinshed games.
-        Called every day using a cron job"""
+        """ Send a reminder email to each User with an email and unfinshed games.
+            Called every day using a cron job."""
         app_id = app_identity.get_application_id()
         users = User.query(User.email != None)
         for user in users:
@@ -23,15 +23,16 @@ class SendReminderEmail(webapp2.RequestHandler):
 
             subject = 'A reminder from the hangman!'
             body = """Hello {0}, we have unfinshed business at {1}.appspot.com.
-            """.format(user.name,app_id)
-            
-            html="""Hello {0}, we have unfinshed business:<br/>
+            """.format(user.name, app_id)
+
+            html = """Hello {0}, we have unfinshed business:<br/>
             """.format(user.name)
-            
+
             for game in games:
                 html += """<a href='https://{0}.appspot.com#/game/{1}'>
-                    unfinished game</a><br/>""".format(app_id,game.key.urlsafe())
-            
+                    unfinished game</a>
+                    <br/>""".format(app_id, game.key.urlsafe())
+
             # This will send test emails, the arguments to send_mail are:
             # from, to, subject, body
             mail.send_mail(sender='noreply@{}.appspotmail.com'.format(app_id),

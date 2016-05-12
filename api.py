@@ -1,7 +1,4 @@
-"""api.py - Create and configure the Game API exposing the resources.
-This can also contain game logic. For more complex games it would be wise to
-move game logic to another file. Ideally the API will be simple, concerned
-primarily with communication to/from the API's users."""
+"""An API for a Hangman game that runs on the Google App Engine platform."""
 
 
 import logging
@@ -11,25 +8,26 @@ from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 
 from models import User, Game, Word
-from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
+from models import StringMessage, NewGameForm, GameForm, MakeMoveForm, \
     ScoreForms, GameForms, RankForms, GameHistoryForm
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
 GAME_REQUEST = endpoints.ResourceContainer(
-        urlsafe_game_key=messages.StringField(1),)
+    urlsafe_game_key=messages.StringField(1),)
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),)
-USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
-                                           email=messages.StringField(2))
-HIGH_SCORES_REQUEST = endpoints.ResourceContainer(number_of_results=messages.IntegerField(1))
+USER_REQUEST = endpoints.ResourceContainer(
+    user_name=messages.StringField(1),
+    email=messages.StringField(2))
+HIGH_SCORES_REQUEST = endpoints.ResourceContainer(
+    number_of_results=messages.IntegerField(1))
 
 
 @endpoints.api(name='hangman', version='v1')
 class HangmanApi(remote.Service):
     """API for a hangman game."""
-    
 
     def __init__(self):
         # initialize word bank
@@ -38,7 +36,6 @@ class HangmanApi(remote.Service):
             # import word bank from file
             Word.import_words()
 
-    
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
                       path='game',
@@ -46,7 +43,7 @@ class HangmanApi(remote.Service):
                       http_method='POST')
     def new_game(self, request):
         """ Creates new game.
-            Creates new user, if it doesnt already exist.
+            Creates a new user, if it doesnt already exist.
         """
         user = User.query(User.name == request.user_name).get()
         if not user:
@@ -62,7 +59,6 @@ class HangmanApi(remote.Service):
         game = Game.new_game(user_key, request.attempts)
 
         return game.to_form('Make your move, {0}!'.format(user.name))
-
 
     @endpoints.method(request_message=GAME_REQUEST,
                       response_message=GameForm,
@@ -80,12 +76,11 @@ class HangmanApi(remote.Service):
                 if level.complete:
                     msg = "Level complete."
                 else:
-                    msg = "Make your move, {0}!".format(game.user.get().name) 
+                    msg = "Make your move, {0}!".format(game.user.get().name)
 
             return game.to_form(msg)
         else:
             raise endpoints.NotFoundException('Game not found!')
-
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
@@ -97,23 +92,23 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
-            
+
         game.update_game(request.guess)
-        
+
         if game.game_over:
-            return game.to_form('Game Over! You scored {0}.'.format(game.score))
-            
+            return game.to_form('Game Over! You scored {0}.'
+                                .format(game.score))
+
         level = game.current_level.get()
         if level.complete:
-             return game.to_form('Level complete.')
-       
+            return game.to_form('Level complete.')
+
         if request.guess in level.word.get().name:
             msg = "You chose well!"
         else:
             msg = "You chose poorly!"
 
         return game.to_form(msg)
-           
 
     @endpoints.method(request_message=GAME_REQUEST,
                       response_message=GameForm,
@@ -125,18 +120,18 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
-        
-        # create a new level with a new word    
+
+        # create a new level with a new word
         game.new_level()
-        
-        return game.to_form('Make your move, {0}!'.format(game.user.get().name))
-           
+
+        return game.to_form('Make your move, {0}!'
+                            .format(game.user.get().name))
 
     @endpoints.method(request_message=GAME_REQUEST,
-                        response_message=StringMessage,
-                        path='game/cancel/{urlsafe_game_key}',
-                        name='cancel_game',
-                        http_method='POST')
+                      response_message=StringMessage,
+                      path='game/cancel/{urlsafe_game_key}',
+                      name='cancel_game',
+                      http_method='POST')
     def cancel_game(self, request):
         """Deletes the specified game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
@@ -145,20 +140,21 @@ class HangmanApi(remote.Service):
         game.key.delete()
         return StringMessage(message='Game deleted.')
 
-
     @endpoints.method(request_message=HIGH_SCORES_REQUEST,
-                        response_message=ScoreForms,
-                        path='scores/high_scores',
-                        name='get_high_scores',
-                        http_method='GET')
+                      response_message=ScoreForms,
+                      path='scores/high_scores',
+                      name='get_high_scores',
+                      http_method='GET')
     def get_high_scores(self, request):
         """ Returns top scores.
             If number_of_reults parameter is omitted, will return top 10."""
         result_count = 10
         if request.number_of_results is not None:
             result_count = request.number_of_results
-        return ScoreForms(items=[game.to_score_form() for game in Game.query().order(-Game.score).fetch(result_count)])
-
+        return ScoreForms(items=[
+            game.to_score_form() for game in Game
+            .query(Game.game_over == True)
+            .order(-Game.score).fetch(result_count)])
 
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=GameForms,
@@ -174,7 +170,6 @@ class HangmanApi(remote.Service):
         games = Game.query(Game.user == user.key, Game.game_over == False)
         return GameForms(items=[game.to_form() for game in games])
 
-
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=GameForms,
                       path='games/completed/user/{user_name}',
@@ -189,7 +184,6 @@ class HangmanApi(remote.Service):
         games = Game.query(Game.user == user.key, Game.game_over == True)
         return GameForms(items=[game.to_form() for game in games])
 
-
     @endpoints.method(response_message=RankForms,
                       path='games/user/rankings',
                       name='get_user_rankings',
@@ -198,7 +192,6 @@ class HangmanApi(remote.Service):
         """Returns all user rankings."""
         users = User.query().order(-User.average_score)
         return RankForms(items=[user.to_rank_form() for user in users])
-
 
     @endpoints.method(request_message=GAME_REQUEST,
                       response_message=GameHistoryForm,

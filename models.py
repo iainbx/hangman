@@ -1,6 +1,4 @@
-"""models.py - This file contains the class definitions for the Datastore
-entities used by the Game. Because these classes are also regular Python
-classes they can include methods (such as 'to_form' and 'new_game')."""
+"""Class definitions for the Datastore entities used by the Hangman API.""""
 
 import random
 from datetime import date
@@ -13,16 +11,16 @@ import logging
 class User(ndb.Model):
     """User model"""
     name = ndb.StringProperty(required=True)
-    email =ndb.StringProperty()
+    email = ndb.StringProperty()
     total_score = ndb.IntegerProperty(default=0)
     total_played = ndb.IntegerProperty(default=0)
     average_score = ndb.IntegerProperty(default=0)
 
-
     def to_rank_form(self):
+        """Returns a RankForm representation of the User"""
         return RankForm(user_name=self.name, total_score=self.total_score,
-                         total_played=self.total_played,
-                         average_score=self.average_score)
+                        total_played=self.total_played,
+                        average_score=self.average_score)
 
 
 class Game(ndb.Model):
@@ -33,7 +31,6 @@ class Game(ndb.Model):
     current_level = ndb.KeyProperty(kind='Level')
     date = ndb.DateProperty(required=True)
     score = ndb.IntegerProperty(default=0)
-
 
     @classmethod
     def new_game(cls, user_key, attempts):
@@ -47,35 +44,34 @@ class Game(ndb.Model):
         game.new_level()
         return game
 
-        
     def new_level(self):
         """Creates a new game level with a new word"""
         level = Level.new_level(self.key)
         self.current_level = level.key
         self.put()
 
-
     def update_game(self, guess):
         """Update the game state after a guess"""
         level = self.current_level.get()
         level.update_level(guess, self.attempts_allowed)
-           
+
         if level.complete:
             if level.won:
                 # update game Score
-                self.score += self.attempts_allowed - \
-                    level.word.get().get_failed_attempts_count(level.attempted_letters)
-            else:    
+                attempts = level.word.get() \
+                            .get_failed_attempts_count(level.attempted_letters)
+                self.score += self.attempts_allowed - attempts
+            else:
                 # game over
                 self.game_over = True
                 # update user totals for ranking
                 user = self.user.get()
                 user.total_played += 1
                 user.total_score += self.score
-                user.average_score = int(round(user.total_score / user.total_played))
+                user.average_score = int(round(user.total_score /
+                                         user.total_played))
                 user.put()
             self.put()
-
 
     def to_form(self, message=""):
         """Returns a GameForm representation of the Game"""
@@ -93,9 +89,9 @@ class Game(ndb.Model):
         # get current word
         word = level.word.get()
         form.attempts_remaining = self.attempts_allowed - \
-                word.get_failed_attempts_count(level.attempted_letters)
+            word.get_failed_attempts_count(level.attempted_letters)
         form.clue = word.clue
-        
+
         if self.game_over:
             # allow user to see the word
             form.guessed_word = word.name
@@ -104,12 +100,10 @@ class Game(ndb.Model):
 
         return form
 
-
     def to_score_form(self):
         """Returns a ScoreForm representation of the Game"""
         return ScoreForm(user_name=self.user.get().name,
-                            date=str(self.date), score=self.score)
-
+                         date=str(self.date), score=self.score)
 
     def to_history_form(self):
         """Returns a GameHistoryForm representation of the Game"""
@@ -124,13 +118,13 @@ class Game(ndb.Model):
         levels = Level.query(Level.game == self.key).order(Level.level_number)
         for level in levels:
             word = level.word.get()
-            guessed_letters = ""
+            letters = ""
             for c in level.attempted_letters:
-                guessed_letters += c
+                letters += c
                 moves.append({'level': level.level_number,
-                    'guessed_word': word.get_guessed_word(guessed_letters),
-                    'guess': c, 'result': c in word.name})
-            
+                              'guessed_word': word.get_guessed_word(letters),
+                              'guess': c, 'result': c in word.name})
+
         form.moves = json.dumps(moves)
         return form
 
@@ -144,7 +138,6 @@ class Level(ndb.Model):
     complete = ndb.BooleanProperty(required=True, default=False)
     won = ndb.BooleanProperty(required=True, default=False)
 
-
     @classmethod
     def new_level(cls, game_key):
         """Creates and returns a new game level with a new word"""
@@ -156,9 +149,11 @@ class Level(ndb.Model):
         # if there are any unplayed words left
         word_key = Word.get_random_word()
         used_word_keys = []
-        user_game_keys = Game.query(Game.user == game.user).fetch(keys_only=True)
+        user_game_keys = Game.query(Game.user == game.user) \
+            .fetch(keys_only=True)
         for user_game_key in user_game_keys:
-            user_level_keys = Level.query(Level.game == user_game_key).fetch(keys_only=True)
+            user_level_keys = Level.query(Level.game == user_game_key) \
+                                            .fetch(keys_only=True)
             for user_level_key in user_level_keys:
                 used_word_keys.append(user_level_key.get().word)
 
@@ -168,47 +163,45 @@ class Level(ndb.Model):
                 word_key = Word.get_random_word()
 
         level = Level(game=game_key,
-                    word=word_key,
-                    level_number = level_number,
-                    attempted_letters = "",
-                    complete=False,
-                    won=False)
+                      word=word_key,
+                      level_number=level_number,
+                      attempted_letters="",
+                      complete=False,
+                      won=False)
         level.put()
         return level
-
 
     def update_level(self, guess, attempts_allowed):
         """Update the level state after a guess"""
         self.attempted_letters = self.attempted_letters + guess
-        
+
         word = self.word.get()
-        
+
         if "_" not in word.get_guessed_word(self.attempted_letters):
             # level completed successfully
-            self.complete = True;
+            self.complete = True
             self.won = True
         else:
-            attempts_remaining = attempts_allowed - word.get_failed_attempts_count(self.attempted_letters)
+            attempts_remaining = attempts_allowed - \
+                    word.get_failed_attempts_count(self.attempted_letters)
             if attempts_remaining < 1:
                 # level failed
-                self.complete = True;
+                self.complete = True
                 self.won = False
-        
+
         self.put()
 
 
 class Word(ndb.Model):
     """Word bank model"""
     name = ndb.StringProperty(required=True)
-    clue =ndb.StringProperty(required=True)
+    clue = ndb.StringProperty(required=True)
 
-    
     @staticmethod
     def get_random_word():
         """Return the key of a randomly selected word from word bank"""
         keys = Word.query().fetch(keys_only=True)
-        return random.sample(keys,1)[0]
-
+        return random.sample(keys, 1)[0]
 
     @staticmethod
     def import_words():
@@ -217,12 +210,13 @@ class Word(ndb.Model):
             json_data = json.load(json_file)
             for imported_word in json_data:
                 logging.info(imported_word)
-                word = Word(name=imported_word["name"],clue=imported_word["clue"])
+                word = Word(name=imported_word["name"],
+                            clue=imported_word["clue"])
                 word.put()
 
-
     def get_guessed_word(self, attempted_letters):
-        """ Returns the word with guessed letters inserted and blanks for letters not guessed"""
+        """ Returns the word with guessed letters inserted
+            and blanks for letters not guessed"""
         guessed_word = list("_" * len(self.name))
         for c in attempted_letters:
             indexes = [pos for pos, char in enumerate(self.name) if char == c]
@@ -230,7 +224,6 @@ class Word(ndb.Model):
                 for i in indexes:
                     guessed_word[i] = c
         return ''.join(guessed_word)
-
 
     def get_failed_attempts_count(self, attempted_letters):
         """Returns count of failed attempts to guess a letter"""
