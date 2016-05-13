@@ -32,10 +32,10 @@ git clone https://github.com/iainbx/hangman.git
  in the Google App Engine admin console and would like to use to host your instance of this sample.
 1.  Run the application in the Local Development Server with the following `python` command on the 
 command line.
-```Shell
-dev_appserver.py DIR
-```
-Where DIR is the path to the application folder containing the `app.yaml` file.
+    ```Shell
+    dev_appserver.py DIR
+    ```
+    where DIR is the path to the application folder containing the `app.yaml` file.
 
 1.  Browse to the home page of the web site (by default [localhost:8080/](http://localhost:8080/)) and play the game.
 1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
