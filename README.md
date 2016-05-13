@@ -38,7 +38,7 @@ command line.
     where DIR is the path to the application folder containing the `app.yaml` file.
 
 1.  Browse to the home page of the web site (by default [localhost:8080/](http://localhost:8080/)) and play the game.
-1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
+1.  Try the API endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
 
 ##Game Description
 Start a new hangman game by calling the `new_game` endpoint with a user name. A new user will be created by the
@@ -59,27 +59,28 @@ can then call `make_move` again to guess letters. The game is over when you run 
   - Parameters: user_name, email (optional), attempts (optional, default=6)
   - Returns: GameForm with initial game state.
   - Description: Creates a new Game. Creates the first level of the game, containing the first
-  word to be quessed. If a user does not exist with the specified user_name,
-  a new user is created. The attempts parameter is the number of failed attempts to guess
-  a word that are allowed before the game will end.
+  word to be guessed. If a user does not exist with the specified user_name,
+  a new user is created. The `attempts` parameter is the number of incorrect 
+  guesses that are allowed before the game is ended.
      
 - **make_move**
   - Path: 'game/{urlsafe_game_key}'
   - Method: PUT
   - Parameters: urlsafe_game_key, guess
-  - Returns: GameForm with new game state.
-  - Description: Accepts a character 'guess' and returns the updated state of the game.
-  If this causes a game to end, the user score will be updated.
-  If the word is guessed, the level_complete flag is set to true, and a call will need to
-  be made to the next_level endpoint, to retrieve the next word to guess.
+  - Returns: GameForm with updated game state.
+  - Description: Accepts a single character as a guess and returns the updated state of the game.
+  If the guess is incorrect and this causes the game to end, the user's total score will be updated.
+  If the word is guessed, the level_complete flag is set to true, the game score is updated, and a call will need to
+  be made to the `next_level` endpoint, to retrieve the next word to guess.
 
 - **next_level**
   - Path: 'game/next_level/{urlsafe_game_key}'
   - Method: GET
   - Parameters: urlsafe_game_key
-  - Returns: GameForm with current game state.
-  - Description: Call this endpoint to retrieve the next word to guess in a game,
-  after a word has been guessed. The make_move endpoint can then be called again to
+  - Returns: GameForm with updated game state.
+  - Description: Call this endpoint after a word has been guessed to create 
+  a new level and retrieve the next word to guess in a game.
+  The `make_move` endpoint can then be called again to
   guess the new word.
 
 - **get_game**
@@ -94,7 +95,7 @@ can then call `make_move` again to guess letters. The game is over when you run 
   - Method: POST
   - Parameters: urlsafe_game_key
   - Returns: StringMessage.
-  - Description: Deletes the specified game and associated levels, if it is active.
+  - Description: Deletes the specified game and associated levels, if it is incomplete.
 
 - **get_game_history**
   - Path: 'game/history/{urlsafe_game_key}'
@@ -133,7 +134,7 @@ can then call `make_move` again to guess letters. The game is over when you run 
   - Parameters: number_of_results (optional, default=10)
   - Returns: ScoreForms.
   - Description: Returns the specied number of high scores, ordered by score descending.
-  If number_of_results parameter is omitted, returns top ten scores.
+  If the `number_of_results` parameter is omitted, returns the top ten scores.
   
 
 ##Models

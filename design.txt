@@ -9,6 +9,10 @@ scores to be assocated with the game and the user, I just stored the score in th
 I also stored a user's lifetime score and average score in the User entity for ranking purposes
 because the Datastore does not seem to support aggregate queries.
 
+Scoring. the score for a game is the sum of the scores for each level in the game.
+The score for a level is just attempts remaining after the word has been guessed.
+Ranking is based on the user's average score over all played games.
+
 Game flow
 new game for user
 create game, create user if necessary, create 1st level with word to guess from word list

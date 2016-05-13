@@ -47,7 +47,7 @@ class HangmanApi(remote.Service):
             Creates a new user, if it doesnt already exist.
         """
         if request.attempts < 1:
-            raise endpoints.BadRequestException('Attempts must be grater '
+            raise endpoints.BadRequestException('Attempts must be greater '
                                                 'than 0!')
                                                 
         user = User.query(User.name == request.user_name).get()
