@@ -35,16 +35,16 @@ git clone https://github.com/iainbx/hangman.git
 1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
 
 ##Game Description
-Start a new game by calling the new_game endpoint with a user name. A new user will be created by the
-endpoint if needed. The endpoint will return a guesssed_word value, which is the same length as the word
+Start a new game by calling the `new_game` endpoint with a user name. A new user will be created by the
+endpoint if needed. The endpoint will return a `guesssed_word` value, which is the same length as the word
 to be guessed, but filled with underscores.  A clue for the word to be guessed is also returned. 
 Guess a letter in the word 
-by calling the make_move endpoint with the game's urlsafe key, returned from new_game. If you guessed
-correctly the guessed_word property will be updated to show the guessed letters in their correct positions.
-If you guessed incorrectly, the attempts_remaining property will be decremented. Keep guessing until you
+by calling the `make_move` endpoint with the game's urlsafe key, returned from `new_game`. If you guessed
+correctly the `guessed_word` property will be updated to show the guessed letters in their correct positions.
+If you guessed incorrectly, the `attempts_remaining` property will be decremented. Keep guessing until you
 guess the word or run out of attempts remaining. If you guess the word, your score will be increased, 
-and you can retrieve another word to be guessed by calling the next_level endpoint with the game key. You
-can then call make_move again to guess letters. The game is over when you run out of attempts remaining.
+and you can retrieve another word to be guessed by calling the `next_level` endpoint with the game key. You
+can then call `make_move` again to guess letters. The game is over when you run out of attempts remaining.
 
 ##Endpoints
  - **new_game**
