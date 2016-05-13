@@ -54,5 +54,6 @@ Final Thoughts
 
 This project was the most fun, and most challenging so far. I missed multiple
 project deadlines, got blurred vision, drank too much wine, got too little sleep, got
-the family involved, learn't some things, realized my JavaScript sucks, but had 
-a blast. Adding a front end should really be required for this project.
+the family involved (my son did the word list), learn't some things, realized my 
+JavaScript sucks, but had a blast. 
+Adding a front end should really be required for this project.
