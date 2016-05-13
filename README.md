@@ -40,6 +40,7 @@ command line.
 1.  Browse to the home page of the web site (by default [localhost:8080/](http://localhost:8080/)) and play the game.
 1.  Try the API endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
 
+
 ##Game Description
 Start a new hangman game by calling the `new_game` endpoint with a user name. A new user will be created by the
 endpoint if needed. The endpoint will return a `guesssed_word` value, which is the same length as the word
@@ -51,6 +52,7 @@ If you guessed incorrectly, the `attempts_remaining` property will be decremente
 guess the word or run out of attempts remaining. If you guess the word, your score will be increased, 
 and you can retrieve another word to be guessed by calling the `next_level` endpoint with the game key. You
 can then call `make_move` again to guess letters. The game is over when you run out of attempts remaining.
+
 
 ##Endpoints
 - **new_game**
@@ -150,7 +152,8 @@ can then call `make_move` again to guess letters. The game is over when you run 
   
 - **Word**
   - Stores the list of words and clues used by the game.
-    
+
+
 ##Forms
 - **GameForm**
   - Representation of a Game's state (urlsafe_key, attempts_remaining,

@@ -1,40 +1,58 @@
-The hangman game uses four entity kinds for storing data, User, Game, Level, and Word. 
+Entities
+========
+
+The hangman game uses four entity kinds for storing data:
+User, Game, Level, and Word. 
+The Word entity kind is really a static pool of available words for use in any game. 
+
 A user can have multiple games, so a User entity is a parent of a Game entity.
 A game can have multiple levels, so a Game entity is a parent of a Level entity.
 A level has a single word to be guessed by the user, so a Level entity is also a 
-child of a Word entity. The Word entity kind is really a static pool of available 
-words for use in any game. 
+child of a Word entity. 
+The game needs to keep track of the current level being played, so the Game entity
+has a property pointing to the current level entity. I am not keen on circular
+references, so I struggled with this design. But it does work nicely.
+
 I did initially have a Score model for storing game scores, but since I wanted game
-scores to be assocated with the game and the user, I just stored the score in the Game entity.
-I also stored a user's lifetime score and average score in the User entity for ranking purposes
-because the Datastore does not seem to support aggregate queries.
+scores to be assocated with both the game and the user, I just stored the score in 
+the Game entity.
+I also stored a user's lifetime score and average score in the User entity 
+for ranking purposes because the Datastore does not seem to support aggregate queries.
 
-Scoring. the score for a game is the sum of the scores for each level in the game.
-The score for a level is just attempts remaining after the word has been guessed.
-Ranking is based on the user's average score over all played games.
+Endpoints
+=========
 
-Game flow
-new game for user
-create game, create user if necessary, create 1st level with word to guess from word list
-return game state
-user repeatedly guesses a letter in the word calling make_move() until max failed attempts
-or word guessed
-if word is quessed, game score is updated and user can call next_level()
- to get a new level with a new word
- if the word is not quessed in max attempts - game over
-
-I thought it would be a good idea to develop a minimal front end for the API for testing
-purposes, and because I was really interested in seeing the API working with a Javascript app.
+The game play endpoints are based on user actions required to play a game.
+I thought it would be a good idea to develop a minimal front end for the API for 
+testing purposes, and because I was interested in seeing the API working with a 
+JavaScript app.
 I thought it would be fun, and quite trivial. It was fun, but not trivial. I spent
 as much time on the front end as on the API itself. It didn't help that I chose
 AngularJS for the front end. I had no experience with AngularJS, but it looked like
 a good fit, and would be trivial to learn. It wasn't.
 
-Still creating a front end did help with testing. It immediately highlighted that 
-although my API worked in the API Explorer, it did not work in real world use.
+Still creating a front end did help with testing endpoints. It immediately 
+highlighted that although my API worked in the API Explorer, it did not work in 
+real world use.
 I had an endpoint to create a new user and another endpoint to start a new game for 
 the user. When I called the new game endpoint after calling the create user endpoint,
-the freshly created user could not be found. I think that I stumbled on what Google calls
-eventual consistency. Anyway,
-it was more efficient for my front end if I could create a user if needed and start a game
-in a single call. So thats what I ended up doing.
+the freshly created user could not be found. I think that I stumbled on what 
+Google calls eventual consistency. Anyway, it was more efficient for my front end 
+to create a user, if needed, and start a game in a single call. 
+So thats what I ended up doing.
+
+Scoring
+=======
+
+The score for a game is the sum of the scores for each level in the game.
+The score for a level is just the number of attempts remaining after the word has 
+been guessed.
+User ranking is based on the user's average score over all played games.
+
+Final Thoughts
+==============
+
+This project was the most fun, and most challenging so far. I missed multiple
+project deadlines, got blurred vision, drank too much wine, got too little sleep, got
+the family involved, learn't some things, realized my JavaScript sucks, but had 
+a blast. Adding a front end should really be required for this project.
