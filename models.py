@@ -209,7 +209,6 @@ class Word(ndb.Model):
         with open("words.json") as json_file:
             json_data = json.load(json_file)
             for imported_word in json_data:
-                #logging.info(imported_word)
                 word = Word(name=imported_word["name"],
                             clue=imported_word["clue"])
                 word.put()

@@ -49,7 +49,7 @@ class HangmanApi(remote.Service):
         if request.attempts < 1:
             raise endpoints.BadRequestException('Attempts must be greater '
                                                 'than 0!')
-                                                
+
         user = User.query(User.name == request.user_name).get()
         if not user:
             # create new user
@@ -97,7 +97,7 @@ class HangmanApi(remote.Service):
         if len(request.guess) != 1:
             raise endpoints.BadRequestException('Guess 1 letter '
                                                 'at a time!')
-                                                
+
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
@@ -150,11 +150,11 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game completed. Cannot delete.')
-        
+
         # delete any levels
         level_keys = Level.query(Level.game == game.key).fetch(keys_only=True)
         ndb.delete_multi(level_keys)
-            
+
         game.key.delete()
         return StringMessage(message='Game deleted.')
 
