@@ -1,6 +1,6 @@
 # Hangman
-A Hangman game that uses Google Cloud Endpoints, Google App Engine, Google Datastore, 
-and Python for the back end API, and an AngularJS application for the front end user interface.
+A Hangman game utilizing Google Cloud Endpoints, Google App Engine, Google Datastore, 
+and Python for the back end API, with an AngularJS application for the front end user interface.
 
 
 ##Prerequisites
@@ -30,7 +30,13 @@ git clone https://github.com/iainbx/hangman.git
 ##Set-Up Instructions
 1.  Update the value of `application` in `app.yaml` to an app ID that you have registered
  in the Google App Engine admin console and would like to use to host your instance of this sample.
-1.  Run the app with the devserver using dev_appserver.py DIR.
+1.  Run the application in the Local Development Server with the following `python` command on the 
+command line.
+```Shell
+dev_appserver.py DIR
+```
+Where DIR is the path to the application folder containing the `app.yaml` file.
+
 1.  Browse to the home page of the web site (by default [localhost:8080/](http://localhost:8080/)) and play the game.
 1.  Try the endpoints by visiting the Google APIs Explorer, [localhost:8080/_ah/api/explorer](http://localhost:8080/_ah/api/explorer).
 

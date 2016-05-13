@@ -5,8 +5,9 @@ A level has a single word to be guessed by the user, so a Level entity is also a
 child of a Word entity. The Word entity kind is really a static pool of available 
 words for use in any game. 
 I did initially have a Score model for storing game scores, but since I wanted game
-scores to be assocated with the game, I just stored the score in the Game entity.
-I also stored a user's lifetime score and average score in the User entity.
+scores to be assocated with the game and the user, I just stored the score in the Game entity.
+I also stored a user's lifetime score and average score in the User entity for ranking purposes
+because the Datastore does not seem to support aggregate queries.
 
 Game flow
 new game for user
@@ -30,6 +31,6 @@ although my API worked in the API Explorer, it did not work in real world use.
 I had an endpoint to create a new user and another endpoint to start a new game for 
 the user. When I called the new game endpoint after calling the create user endpoint,
 the freshly created user could not be found. I think that I stumbled on what Google calls
-eventual consistency, and the problem can be solved with an ancestor query. However,
-it seemed better for my front end if I could create a user if needed and start a game
+eventual consistency. Anyway,
+it was more efficient for my front end if I could create a user if needed and start a game
 in a single call. So thats what I ended up doing.
