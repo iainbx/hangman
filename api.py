@@ -100,6 +100,8 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
+        if game.current_level.get().complete:
+            return game.to_form('Level already complete!')
 
         game.update_game(request.guess)
 
@@ -128,6 +130,8 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
+        if not game.current_level.get().complete:
+            return game.to_form('Current level is not complete!')
 
         # create a new level with a new word
         game.new_level()
@@ -145,6 +149,11 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game completed. Cannot delete.')
+        
+        # delete any levels
+        level_keys = Level.query(Level.game == game.key).fetch(keys_only=True)
+        ndb.delete_multi(level_keys)
+            
         game.key.delete()
         return StringMessage(message='Game deleted.')
 
@@ -193,7 +202,7 @@ class HangmanApi(remote.Service):
         return GameForms(items=[game.to_form() for game in games])
 
     @endpoints.method(response_message=RankForms,
-                      path='games/user/rankings',
+                      path='user/rankings',
                       name='get_user_rankings',
                       http_method='GET')
     def get_user_rankings(self, request):
