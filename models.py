@@ -33,10 +33,10 @@ class Game(ndb.Model):
     score = ndb.IntegerProperty(default=0)
 
     @classmethod
-    def new_game(cls, user_key, attempts):
+    def new_game(cls, user_key, attempts_allowed):
         """Creates and returns a new game"""
         game = Game(user=user_key,
-                    attempts_allowed=attempts,
+                    attempts_allowed=attempts_allowed,
                     game_over=False,
                     date=date.today(),
                     score=0)
@@ -176,6 +176,11 @@ class Level(ndb.Model):
         self.attempted_letters = self.attempted_letters + guess
 
         word = self.word.get()
+        
+        if len(guess) == len(word):
+            # word guess
+            if guess == word:
+                # successful word guess
 
         if "_" not in word.get_guessed_word(self.attempted_letters):
             # level completed successfully

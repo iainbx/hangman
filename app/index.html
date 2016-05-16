@@ -15,7 +15,6 @@
     <script>
         function init() {
                 var callback = function() {
-                    //gapi.client.setApiKey('AIzaSyAbdYbE8cxWqRa9Yce2N71CMQhVCUyFD3E');
                     angular.bootstrap(document, ['hangmanApp']);
                 }
                 gapi.client.load('hangman', 'v1', callback, '//' + window.location.host + '/_ah/api');
@@ -26,10 +25,9 @@
 
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavController">
-        <div class="container">
+        <div class="container" ng-click="isCollapsed = !isCollapsed">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-                    aria-controls="navbar">
+                <button type="button" class="navbar-toggle collapsed" ng-init="isCollapsed = true">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -37,7 +35,7 @@
                 </button>
                 <a class="navbar-brand" href="#">Hangman</a>
             </div>
-            <div id="navbar" class="collapse navbar-collapse">
+            <div id="navbar" class="navbar-collapse" ng-class="{collapse: isCollapsed}">
                 <ul class="nav navbar-nav">
                     <li ng-class="{ active: isActive('/')}"><a href="/">New Game</a></li>
                     <li ng-class="{ active: isActive('/highscores')}"><a ng-click="show_high_scores()" >High Scores</a></li>
