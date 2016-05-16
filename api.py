@@ -46,9 +46,9 @@ class HangmanApi(remote.Service):
         """ Creates new game.
             Creates a new user, if it doesnt already exist.
         """
-        if request.attempts not in range(1, 10):
-            raise endpoints.BadRequestException('Attempts must be between '
-                                                '1 and 10!')
+        if request.attempts_allowed not in range(1, 10):
+            raise endpoints.BadRequestException('Attempts allowed must be '
+                                                'between 1 and 10!')
 
         user = User.query(User.name == request.user_name).get()
         if not user:
@@ -61,7 +61,7 @@ class HangmanApi(remote.Service):
         else:
             user_key = user.key
 
-        game = Game.new_game(user_key, request.attempts)
+        game = Game.new_game(user_key, request.attempts_allowed)
 
         return game.to_form('Make your move, {0}!'.format(user.name))
 
@@ -93,8 +93,10 @@ class HangmanApi(remote.Service):
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
-        """Makes a move in a game. Returns the game state."""
-        if !request.guess.isalpha():
+        """Makes a move in a game. 
+            Guess a letter of the word, or the whole word.
+            Returns the game state."""
+        if not request.guess.isalpha():
             raise endpoints.BadRequestException('Guess should be at least 1 '
                                                 'letter!')
 
@@ -107,7 +109,7 @@ class HangmanApi(remote.Service):
             return game.to_form('Level already complete!')
             
         word = level.word.get()
-        if len(request.guess) != len(word) and len(request.guess) != 1:
+        if len(request.guess) != len(word.name) and len(request.guess) != 1:
             raise endpoints.BadRequestException('Guess 1 letter or the whole '
                                                 'word!')
 
@@ -121,7 +123,7 @@ class HangmanApi(remote.Service):
         if level.complete:
             return game.to_form('Level complete.')
 
-        if request.guess in level.word.get().name:
+        if request.guess in word.name:
             msg = "You chose well!"
         else:
             msg = "You chose poorly!"

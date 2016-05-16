@@ -135,6 +135,7 @@ hangmanApp.controller('NewGameController', function ($scope, $location, User) {
 hangmanApp.controller('GameController', function ($scope, $routeParams, $location, User) {
     $scope.game_key = $routeParams.websafeGameKey;
     canvas.init();
+    buttons.init();
     
     // get game data
     gapi.client.hangman.get_game({
@@ -145,7 +146,9 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
             User.name = $scope.game.user_name;
             $scope.$apply();
             canvas.draw($scope.game.attempts_remaining);
-            buttons($scope.game.attempted_letters);
+            if ($scope.game.hasOwnProperty('guesses')) {
+                buttons.update($scope.game.guesses);
+            }
         }
     });
 
@@ -180,7 +183,7 @@ hangmanApp.controller('GameController', function ($scope, $routeParams, $locatio
                 $scope.$apply();
                 canvas.init();
                 canvas.draw($scope.game.attempts_remaining);
-                buttons($scope.game.attempted_letters);
+                buttons.init();
             }
         });
     };
@@ -225,20 +228,6 @@ hangmanApp.controller('GameHistoryController', function ($scope, $routeParams) {
         }
     });
 });
-
-
-function buttons(attempted_letters) {
-    var buttons = document.querySelectorAll("ul#alphabet li");
-    for (var i = 0; i < buttons.length; i++) {
-        if (attempted_letters.indexOf(buttons[i].innerHTML) >= 0) {
-            buttons[i].setAttribute("class", "active");
-            //buttons[i].onclick = null;
-        }
-        else {
-            buttons[i].setAttribute("class", "");
-        }
-    }
-}
 
 // canvas drawing functions
 var canvas = (function() {
@@ -302,3 +291,33 @@ var canvas = (function() {
     }
  
 })();
+
+// button management functions
+var buttons = (function() {
+    var _buttons;
+    return {
+        init: function() {
+            _buttons = document.querySelectorAll("ul#alphabet li");
+            for (var i = 0; i < _buttons.length; i++) {
+                _buttons[i].setAttribute("class", "");
+            }
+        },
+        update: function(guesses) {
+            for (var i = 0; i < _buttons.length; i++) {
+                for (var j = 0; j < guesses.length; j++) {
+                    if (guesses[j].length > 1) {
+                        continue;
+                    }
+                    if (guesses[j].indexOf(_buttons[i].innerHTML) >= 0) {
+                        _buttons[i].setAttribute("class", "active");
+                    }
+                    else {
+                        _buttons[i].setAttribute("class", "");
+                    }
+                }
+            }
+        }
+    }
+})();
+
+

@@ -53,12 +53,12 @@ class Game(ndb.Model):
     def update_game(self, guess):
         """Update the game state after a guess"""
         level = self.current_level.get()
-        level.update_level(guess, self.attempts_allowed)
+        level.update_level(guess)
 
         if level.complete:
             if level.won:
                 # update game score
-                self.score += self.attempts_allowed - level.attempts_remaining
+                self.score += level.attempts_remaining
             else:
                 # game over
                 self.game_over = True
@@ -115,7 +115,7 @@ class Game(ndb.Model):
         levels = Level.query(Level.game == self.key).order(Level.level_number)
         for level in levels:
             word = level.word.get()
-            guesses = []]
+            guesses = []
             for guess in level.guesses:
                 guesses.append(guess)
                 moves.append({'level': level.level_number,
@@ -170,15 +170,15 @@ class Level(ndb.Model):
         level.put()
         return level
 
-    def update_level(self, guess, attempts_allowed):
+    def update_level(self, guess):
         """Update the level state after a guess"""
         self.guesses.append(guess)
 
         word = self.word.get()
         
-        if len(guess) == len(word):
+        if len(guess) == len(word.name):
             # word guess
-            if guess == word:
+            if guess == word.name:
                 # successful word guess, level complete
                 self.complete = True
                 self.won = True
@@ -191,11 +191,11 @@ class Level(ndb.Model):
                 # successful letter guess, level complete
                 self.complete = True
                 self.won = True
-            else:
+            elif guess not in word.name:
                 # failed letter guess
                 self.attempts_remaining -= 1
         
-        if attempts_remaining < 1:
+        if self.attempts_remaining < 1:
             # level failed
             self.complete = True
             self.won = False
@@ -252,7 +252,7 @@ class GameForm(messages.Message):
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
     guessed_word = messages.StringField(6, required=True)
-    guesses = messages.StringField(7, required=True)
+    guesses = messages.StringField(7, repeated=True)
     clue = messages.StringField(8, required=True)
     date = messages.StringField(9, required=True)
     score = messages.IntegerField(10, required=True)
@@ -277,7 +277,7 @@ class NewGameForm(messages.Message):
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
     email = messages.StringField(2)
-    attempts = messages.IntegerField(3, default=6)
+    attempts_allowed = messages.IntegerField(3, default=6)
 
 
 class MakeMoveForm(messages.Message):
