@@ -226,7 +226,7 @@ class Word(ndb.Model):
     def get_guessed_word(self, guesses):
         """ Returns the word with guessed letters inserted
             and underscores for letters that are not guessed,
-            or if the whole word is guessed in a single attempt, 
+            or if the whole word is guessed in a single attempt,
             returns whole word."""
         guessed_word = list(" _ " * len(self.name))
         for guess in guesses:

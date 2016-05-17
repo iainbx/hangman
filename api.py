@@ -106,12 +106,15 @@ class HangmanApi(remote.Service):
         
         level = game.current_level.get()
         if level.complete:
-            return game.to_form('Level already complete!')
+            return game.to_form('Level already complete, get the next level!')
             
         word = level.word.get()
         if len(request.guess) != len(word.name) and len(request.guess) != 1:
             raise endpoints.BadRequestException('Guess 1 letter or the whole '
                                                 'word!')
+
+        if request.guess in level.guesses:
+            raise endpoints.BadRequestException('You already made this guess!')
 
         game.update_game(request.guess)
 
@@ -121,7 +124,7 @@ class HangmanApi(remote.Service):
 
         level = game.current_level.get()
         if level.complete:
-            return game.to_form('Level complete.')
+            return game.to_form('Level complete, get the next level.')
 
         if request.guess in word.name:
             msg = "You chose well!"
