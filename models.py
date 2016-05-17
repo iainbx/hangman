@@ -5,7 +5,6 @@ from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
 import json
-import logging
 
 
 class User(ndb.Model):
@@ -175,7 +174,7 @@ class Level(ndb.Model):
         self.guesses.append(guess)
 
         word = self.word.get()
-        
+
         if len(guess) == len(word.name):
             # word guess
             if guess == word.name:
@@ -194,7 +193,7 @@ class Level(ndb.Model):
             elif guess not in word.name:
                 # failed letter guess
                 self.attempts_remaining -= 1
-        
+
         if self.attempts_remaining < 1:
             # level failed
             self.complete = True
@@ -226,21 +225,21 @@ class Word(ndb.Model):
 
     def get_guessed_word(self, guesses):
         """ Returns the word with guessed letters inserted
-            and underscores for letters not guessed,
+            and underscores for letters that are not guessed,
             or if the whole word is guessed in a single attempt, 
             returns whole word."""
-        guessed_word = list("_" * len(self.name))
+        guessed_word = list(" _ " * len(self.name))
         for guess in guesses:
             if guess == self.name:
                 # word guessed in single attempt
-                return self.name
+                return ''.join(" {} ".format(c) for c in self.name)
             if len(guess) > 1:
                 # failed word guess, ignore
-                continue;
+                continue
             indexes = [pos for pos, char in enumerate(self.name) if char == guess]
             if indexes:
                 for i in indexes:
-                    guessed_word[i] = guess
+                    guessed_word[(i * 3) + 1] = guess
         return ''.join(guessed_word)
 
 
