@@ -153,7 +153,7 @@ class HangmanApi(remote.Service):
                       response_message=StringMessage,
                       path='game/cancel/{urlsafe_game_key}',
                       name='cancel_game',
-                      http_method='POST')
+                      http_method='DELETE')
     def cancel_game(self, request):
         """Deletes the specified game."""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
