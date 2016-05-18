@@ -43,17 +43,19 @@ So thats what I ended up doing.
 
 Scoring
 =======
-
-The score for a game is the sum of the scores for each level in the game.
-The score for a level is just the number of attempts remaining after the word has 
-been guessed.
-User ranking is based on the user's average score over all played games.
+In the first version of the game, the player only had to guess a single word in 
+order to win the game. This made for a limited scoring system, so I introduced
+game levels. With game levels, if a player guesses a word, then their score is
+increased, and they get to play another level, with a new word, and antother 
+opportunity to increase their score. A player never wins a game, but keeps 
+scoring until they fail a level, by not guessing the word in the level, and so
+ending the game.
 
 Final Thoughts
 ==============
 
 This project was the most fun, and most challenging so far. I missed multiple
 project deadlines, got blurred vision, drank too much wine, got too little sleep, got
-the family involved (my son did the word list), learn't some things, realized my 
-JavaScript sucks, but had a blast. 
+the family involved (my son did the word list), learn't some things, realized 
+that my JavaScript sucks, but had a blast. 
 Adding a front end should really be required for this project.
