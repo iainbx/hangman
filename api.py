@@ -45,8 +45,9 @@ class HangmanApi(remote.Service):
     def new_game(self, request):
         """ Creates new game.
             Creates a new user, if it doesnt already exist.
+            Returns the game state.
         """
-        if request.attempts_allowed not in range(1, 10):
+        if request.failed_attempts_allowed not in range(1, 10):
             raise endpoints.BadRequestException('Attempts allowed must be '
                                                 'between 1 and 10!')
 
@@ -61,7 +62,7 @@ class HangmanApi(remote.Service):
         else:
             user_key = user.key
 
-        game = Game.new_game(user_key, request.attempts_allowed)
+        game = Game.new_game(user_key, request.failed_attempts_allowed)
 
         return game.to_form('Make your move, {0}!'.format(user.name))
 
@@ -103,11 +104,11 @@ class HangmanApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game already over!')
-        
+
         level = game.current_level.get()
         if level.complete:
             return game.to_form('Level already complete, get the next level!')
-            
+
         word = level.word.get()
         if len(request.guess) != len(word.name) and len(request.guess) != 1:
             raise endpoints.BadRequestException('Guess 1 letter or the whole '

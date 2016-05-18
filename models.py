@@ -8,7 +8,15 @@ import json
 
 
 class User(ndb.Model):
-    """User model"""
+    """User model
+
+    Attributes:
+        name: User name 
+        email: Optional email address of user for spamming purposes
+        total_score: Total score of all games played by user
+        total_played: Total number of games played by user
+        average_score: total_score / total_played
+    """
     name = ndb.StringProperty(required=True)
     email = ndb.StringProperty()
     total_score = ndb.IntegerProperty(default=0)
@@ -16,15 +24,25 @@ class User(ndb.Model):
     average_score = ndb.IntegerProperty(default=0)
 
     def to_rank_form(self):
-        """Returns a RankForm representation of the User"""
+        """Return a RankForm representation of the User."""
         return RankForm(user_name=self.name, total_score=self.total_score,
                         total_played=self.total_played,
                         average_score=self.average_score)
 
 
 class Game(ndb.Model):
-    """Game model"""
-    attempts_allowed = ndb.IntegerProperty(required=True)
+    """Game model
+
+    Attributes:
+        failed_attempts_allowed: Number of failed attempts to guess a word 
+            allowed in the game
+        game_over: Game over flag
+        user: User entity key
+        current_level: Entity key of current level being played
+        date: Game started date
+        score: Game score, updated when each level completed and the end of game
+    """
+    failed_attempts_allowed = ndb.IntegerProperty(required=True)
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
     current_level = ndb.KeyProperty(kind='Level')
@@ -32,10 +50,17 @@ class Game(ndb.Model):
     score = ndb.IntegerProperty(default=0)
 
     @classmethod
-    def new_game(cls, user_key, attempts_allowed):
-        """Creates and returns a new game"""
+    def new_game(cls, user_key, failed_attempts_allowed):
+        """Create and return a new game
+        Args:
+            user_key: user entity key
+            failed_attempts_allowed: number of failed attempts to guess a word 
+            allowed in the game
+        Returns:
+            Game object
+        """
         game = Game(user=user_key,
-                    attempts_allowed=attempts_allowed,
+                    failed_attempts_allowed=failed_attempts_allowed,
                     game_over=False,
                     date=date.today(),
                     score=0)
@@ -44,13 +69,13 @@ class Game(ndb.Model):
         return game
 
     def new_level(self):
-        """Creates a new game level with a new word"""
+        """Create a new game level with a new word."""
         level = Level.new_level(self.key)
         self.current_level = level.key
         self.put()
 
     def update_game(self, guess):
-        """Update the game state after a guess"""
+        """Update the game state after a guess is made."""
         level = self.current_level.get()
         level.update_level(guess)
 
@@ -71,7 +96,7 @@ class Game(ndb.Model):
             self.put()
 
     def to_form(self, message=""):
-        """Returns a GameForm representation of the Game"""
+        """Return a GameForm representation of the Game."""
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
@@ -97,12 +122,12 @@ class Game(ndb.Model):
         return form
 
     def to_score_form(self):
-        """Returns a ScoreForm representation of the Game"""
+        """Return a ScoreForm representation of the Game."""
         return ScoreForm(user_name=self.user.get().name,
                          date=str(self.date), score=self.score)
 
     def to_history_form(self):
-        """Returns a GameHistoryForm representation of the Game"""
+        """Return a GameHistoryForm representation of the Game."""
         form = GameHistoryForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
@@ -126,7 +151,18 @@ class Game(ndb.Model):
 
 
 class Level(ndb.Model):
-    """Game level model"""
+    """Game level model
+    
+    Attributes:
+        game: Game entity key
+        level_number: Level number in a game, used for history display
+        word: Word entity key
+        guesses: List of user guesses made in a level
+        attempts_remaining: Number of attempts remaining in a level
+        complete = Level complete flag (complete is when a word is guessed or
+                    a game is over)
+        won = Level won flag
+    """
     game = ndb.KeyProperty(required=True, kind='Game')
     level_number = ndb.IntegerProperty(default=0)
     word = ndb.KeyProperty(required=True, kind='Word')
@@ -137,7 +173,12 @@ class Level(ndb.Model):
 
     @classmethod
     def new_level(cls, game_key):
-        """Creates and returns a new game level with a new word"""
+        """Create and return a new game level with a new word
+        Args:
+            game_key: Game entity key
+        Returns:
+            Level object
+        """
         game = game_key.get()
 
         level_number = Level.query(Level.game == game.key).count() + 1
@@ -163,14 +204,14 @@ class Level(ndb.Model):
                       word=word_key,
                       level_number=level_number,
                       guesses=[],
-                      attempts_remaining=game.attempts_allowed,
+                      attempts_remaining=game.failed_attempts_allowed,
                       complete=False,
                       won=False)
         level.put()
         return level
 
     def update_level(self, guess):
-        """Update the level state after a guess"""
+        """Update the level state after a guess is made."""
         self.guesses.append(guess)
 
         word = self.word.get()
@@ -203,19 +244,24 @@ class Level(ndb.Model):
 
 
 class Word(ndb.Model):
-    """Word bank model"""
+    """Word bank model
+        
+    Attributes:
+        name: The word to be guessed
+        clue: A clue for the word to be guessed
+    """
     name = ndb.StringProperty(required=True)
     clue = ndb.StringProperty(required=True)
 
     @staticmethod
     def get_random_word():
-        """Return the key of a randomly selected word from word bank"""
+        """Return the key of a randomly selected word from word bank."""
         keys = Word.query().fetch(keys_only=True)
         return random.sample(keys, 1)[0]
 
     @staticmethod
     def import_words():
-        """Import words from json file"""
+        """Import words from json file."""
         with open("words.json") as json_file:
             json_data = json.load(json_file)
             for imported_word in json_data:
@@ -224,10 +270,10 @@ class Word(ndb.Model):
                 word.put()
 
     def get_guessed_word(self, guesses):
-        """ Returns the word with guessed letters inserted
+        """ Return the word to be guessed, with guessed letters inserted,
             and underscores for letters that are not guessed,
             or if the whole word is guessed in a single attempt,
-            returns whole word."""
+            return the whole word."""
         guessed_word = list(" _ " * len(self.name))
         for guess in guesses:
             if guess == self.name:
@@ -244,7 +290,7 @@ class Word(ndb.Model):
 
 
 class GameForm(messages.Message):
-    """GameForm for outbound game state information"""
+    """GameForm for outbound game state information."""
     urlsafe_key = messages.StringField(1, required=True)
     attempts_remaining = messages.IntegerField(2, required=True)
     game_over = messages.BooleanField(3, required=True)
@@ -259,7 +305,7 @@ class GameForm(messages.Message):
 
 
 class GameHistoryForm(messages.Message):
-    """GameHistoryForm for outbound game state information"""
+    """GameHistoryForm for outbound game state information."""
     urlsafe_key = messages.StringField(1, required=True)
     user_name = messages.StringField(2, required=True)
     date = messages.StringField(3, required=True)
@@ -268,36 +314,36 @@ class GameHistoryForm(messages.Message):
 
 
 class GameForms(messages.Message):
-    """Return multiple GameForms"""
+    """Return multiple GameForms."""
     items = messages.MessageField(GameForm, 1, repeated=True)
 
 
 class NewGameForm(messages.Message):
-    """Used to create a new game"""
+    """Used to create a new game."""
     user_name = messages.StringField(1, required=True)
     email = messages.StringField(2)
-    attempts_allowed = messages.IntegerField(3, default=6)
+    failed_attempts_allowed = messages.IntegerField(3, default=6)
 
 
 class MakeMoveForm(messages.Message):
-    """Used to make a move in an existing game"""
+    """Used to make a move in an existing game."""
     guess = messages.StringField(1, required=True)
 
 
 class ScoreForm(messages.Message):
-    """ScoreForm for outbound Score information"""
+    """ScoreForm for outbound Score information."""
     user_name = messages.StringField(1, required=True)
     date = messages.StringField(2, required=True)
     score = messages.IntegerField(3, required=True)
 
 
 class ScoreForms(messages.Message):
-    """Return multiple ScoreForms"""
+    """Return multiple ScoreForms."""
     items = messages.MessageField(ScoreForm, 1, repeated=True)
 
 
 class RankForm(messages.Message):
-    """RankForm for outbound Rank information"""
+    """RankForm for outbound Rank information."""
     user_name = messages.StringField(1, required=True)
     total_score = messages.IntegerField(2, required=True)
     total_played = messages.IntegerField(3, required=True)
@@ -305,10 +351,10 @@ class RankForm(messages.Message):
 
 
 class RankForms(messages.Message):
-    """Return multiple RankForms"""
+    """Return multiple RankForms."""
     items = messages.MessageField(RankForm, 1, repeated=True)
 
 
 class StringMessage(messages.Message):
-    """StringMessage-- outbound (single) string message"""
+    """StringMessage-- outbound (single) string message."""
     message = messages.StringField(1, required=True)
