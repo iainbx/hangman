@@ -11,7 +11,7 @@ class User(ndb.Model):
     """User model
 
     Attributes:
-        name: User name 
+        name: User name
         email: Optional email address of user for spamming purposes
         total_score: Total score of all games played by user
         total_played: Total number of games played by user
@@ -34,13 +34,13 @@ class Game(ndb.Model):
     """Game model
 
     Attributes:
-        failed_attempts_allowed: Number of failed attempts to guess a word 
+        failed_attempts_allowed: Number of failed attempts to guess a word
             allowed in the game
         game_over: Game over flag
         user: User entity key
         current_level: Entity key of current level being played
         date: Game started date
-        score: Game score, updated when each level completed and the end of game
+        score: Game score, updated when level completed and the end of game
     """
     failed_attempts_allowed = ndb.IntegerProperty(required=True)
     game_over = ndb.BooleanProperty(required=True, default=False)
@@ -54,7 +54,7 @@ class Game(ndb.Model):
         """Create and return a new game
         Args:
             user_key: user entity key
-            failed_attempts_allowed: number of failed attempts to guess a word 
+            failed_attempts_allowed: number of failed attempts to guess a word
             allowed in the game
         Returns:
             Game object
@@ -152,7 +152,7 @@ class Game(ndb.Model):
 
 class Level(ndb.Model):
     """Game level model
-    
+
     Attributes:
         game: Game entity key
         level_number: Level number in a game, used for history display
@@ -245,7 +245,7 @@ class Level(ndb.Model):
 
 class Word(ndb.Model):
     """Word bank model
-        
+
     Attributes:
         name: The word to be guessed
         clue: A clue for the word to be guessed
@@ -282,7 +282,7 @@ class Word(ndb.Model):
             if len(guess) > 1:
                 # failed word guess, ignore
                 continue
-            indexes = [pos for pos, char in enumerate(self.name) if char == guess]
+            indexes = [pos for pos, c in enumerate(self.name) if c == guess]
             if indexes:
                 for i in indexes:
                     guessed_word[(i * 3) + 1] = guess
