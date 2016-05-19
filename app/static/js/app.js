@@ -312,7 +312,7 @@ var buttons = (function() {
                         _buttons[i].setAttribute("class", "active");
                     }
                     else {
-                        _buttons[i].setAttribute("class", "");
+                       // _buttons[i].setAttribute("class", "");
                     }
                 }
             }
